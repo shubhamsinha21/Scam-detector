@@ -17,6 +17,40 @@ load_dotenv()
 # flask app
 app = Flask(__name__) # flast has this name parameter
 
+# set up the Google GenerativeAI api key
+api_key = os.getenv("GOOGLE_API_KEY")
+configure(api_key=api_key)
+
+# initialize the gemini model
+model = GenerativeModel("gemini-1.5-flash")  # calling GenerativeModel from genai
+
+# function to predict text(content) is real/fake
+"""
+extracted text is provided to predict function
+"""
+def predict_fake_real_content(text):
+    prompt = f"""
+    You are an expert in identifying scam messages in text, email, etc.
+    
+    Analyze the given text and classify it as:
+    
+    - **Real/Legitimate** (Authentic, safe message)
+    - **Scame/Fake** (Phishing, fraud or suspicious message)
+    
+    **Text to analyze:**
+    {text}
+    
+    **Return a clear message indicating whether this content is real or fake(scam)
+    If it is a scam, mention why it seems fraudulent. If it's real, consider it as legitimate.**
+    
+    **Only return the classification message and nothing else.**
+    Note: Don't return empty or null, you only need to return message for the input text
+    
+    """
+    
+    response = model.generate_content(prompt)
+    return response.text.strip()
+
 
 # adding routes for connecting main and index
 @app.route("/") # url is empty
