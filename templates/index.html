@@ -20,6 +20,11 @@
             <button type="submit">Upload</button>
         </form>
 
+        <!-- JINJA TEMPLATE FOR PYTHON CODE IN HTML -->
+            {% if message %}
+            <h3>Results:</h3>
+            <p>{{message}}</p>  
+            {% endif %}
 
         <h2>Scam url detection</h2>
         <form action="/predict" method="post" onsubmit="showSpinner('urlForm', 'urlSpinner')"></form>
