@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scam Detector</title>
+</head>
+<body>
+    <div class="navbar">
+        <h1>Scam Detector</h1>
+    </div> 
+    <div class="container">
+        <h2>Scam File detection</h2>
+        <form action="/scam" method="post" enctype="multipart/form-data" onsubmit="showSpinner('fileForm', 'fileSpinner')">
+            <!-- /scam/ is the api endpoint -->
+             <!-- post - becoz we'll make request to app.py (backend) -->
+              <!-- enctype - mutlipart form data (pdf, txt both) -->
+            <label for="file"> Upload file (PDF/TXT Only)</label> 
+            <input type="file" name="file" required>
+            <button type="submit">Upload</button>
+        </form>
+
+
+        <h2>Scam url detection</h2>
+        <form action="/predict" method="post" onsubmit="showSpinner('urlForm', 'urlSpinner')"></form>
+        <label for="url">Enter URL</label>
+        <input type="text" name="url" required>
+        <button type="submit">CLassify</button>
+    </div>
+</body>
+</html>
