@@ -1,0 +1,4 @@
+flask # for backend
+dotenv # to load env files
+PyPDF2
+google-generativeai
