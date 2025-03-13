@@ -52,6 +52,38 @@ def predict_fake_real_content(text):
     return response.text.strip()
 
 
+# function for url detection
+def url_detection(url):
+    prompt = f"""
+    You are an advanced AI model specalizing in URL security classification. 
+    
+    Analyze the give url and classify it as:
+    
+    - Safe URL** : Safe, trusted and non-malicious websites such as google.com, wikipedia.org, amazon.com.
+    - Fraud URL** : Fraudulent websites designed to steal personal information. It includes mispelled domains.
+    - Malware** : URLs that distribute viruses, ransomware or malicious software. Often includes atomatic downloads.
+    - Defacement** : Hacked or defaced websites that display unauthorized content, usually altered by attackers.
+    
+    **Example URLs and Classification:**
+    - **Safe**: "https://www.microsoft.com/"
+    - **Fraud**: "http://secure-login.paypal1.com/"
+    - **Malware**: "http://free-download-software.xyz/"
+    - **Defacement**: "http://hacked-website.com/"
+
+    **Input URL:** {url}
+    
+    **Output Formats:**
+    - Return only a string class name with correct emoji for representing it and enure each cases must have different emojis
+    - Example output for a phishing site:
+    
+    Analyze the URL and return the correct classification (only name in lowercase such as fake, etc)
+    Note: Don't retutn empty or null, at any cost return thr corrected class
+    
+    """
+
+    response  = model.generate_content(prompt)
+    return response.text
+
 # adding routes for connecting main and index
 @app.route("/") # url is empty
 def index(): #function 
@@ -95,6 +127,21 @@ def detect_scam():
     message = predict_fake_real_content(extracted_text) # provided text in the function
     
     return render_template("index.html", message = message)
+
+
+@app.route("/predict", methods=["POST"])
+def detect_url():
+    if 'url' not in request.form:
+        return render_template("index.html", message="No url found !") # adding a check for url
+    url = request.form.get("url", " ").strip() # get a url and removing whitespaces
+    
+    # check the content is url or not   
+    if not url.startswith(("http://", "https://")): # startswith need a tuple for multiple args
+        return render_template("index.html", "Invalid url format !")
+    
+    classification = url_detection(url) # calling url_detection function and assigned in a variable
+    return render_template("index.html", input_url = url, predicted= classification )
+    
         
     
 """
