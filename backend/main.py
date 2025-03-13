@@ -12,12 +12,13 @@ from dotenv import load_dotenv
 from flask_cors import CORS
 
 
-# load env variables
+# load env variables()
 load_dotenv()
 
 # flask app
 app = Flask(__name__) # flast has this name parameter
-CORS(app) # enable CORS for frontend-backend communication
+CORS(app)
+# CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True) # enable CORS for frontend-backend communication
 
 # set up the Google GenerativeAI api key
 api_key = os.getenv("GOOGLE_API_KEY")
