@@ -34,11 +34,22 @@
         </form>
         <!-- JINJA TEMPLATE -->
         {% if predicted %}
-            <div class="result" {{predicted.lower}} >
+            <div class="result" >
                 <p><strong>URL:</strong> {{input_url}} </p>
                 <p><strong>Prediction:</strong> {{predicted}} </p>
             </div>
         {% endif %}
     </div>
+
+    <script>
+        // javascript function
+        function showSpinner(formId, spinnerId){
+            document.getElementById(spinnerId).style.display = 'block';
+            setTimeout(() => {
+                document.getElementById(spinnerId).style.display = 'none';
+            }, 3000) // spinner will visile only for 3000ms
+        }
+    </script>
+
 </body>
 </html>
