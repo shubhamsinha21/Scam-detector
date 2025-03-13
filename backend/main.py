@@ -2,13 +2,14 @@
 Here, we are using flask as backend
 In bet, python main and flask app, we create a communication bridge bet frontend & backend
 """
-from flask import Flask, render_template, request
+from flask import Flask, jsonify, request
 # render_template is for connection bet frontend & backend
 # request - for creating request to frontend for data
 import PyPDF2 # for extracting text from pdf
 import os # inbuilt module
 from google.generativeai import configure, GenerativeModel# for generative ai model
 from dotenv import load_dotenv
+from flask_cors import CORS
 
 
 # load env variables
@@ -16,6 +17,7 @@ load_dotenv()
 
 # flask app
 app = Flask(__name__) # flast has this name parameter
+CORS(app) # enable CORS for frontend-backend communication
 
 # set up the Google GenerativeAI api key
 api_key = os.getenv("GOOGLE_API_KEY")
@@ -85,14 +87,11 @@ def url_detection(url):
     return response.text
 
 # adding routes for connecting main and index
-@app.route("/") # url is empty
-def index(): #function 
-    return render_template("index.html") # render template is re-directing it to index page
-
 @app.route("/scam", methods=['POST'])
 def detect_scam():
     if 'file' not in request.files:
-        return render_template("index.html", message="No file uploaded !")
+        return jsonify({"error": "No file uploaded !"}), 400
+    
     file = request.files['file']
     print(file)
     
@@ -121,28 +120,25 @@ def detect_scam():
         extracted_text = file.read().decode("utf-8") # reading text file and decoding it into fixed format
         
     else:
-        return render_template("index.html", message = "Invalid file format ! Only .pdf and .txt file  supported !")
+        return jsonify({"error": "Invalid file format ! Only .pdf and .txt file  supported !"})
     
     # print(extracted_text)
     message = predict_fake_real_content(extracted_text) # provided text in the function
     
-    return render_template("index.html", message = message)
+    return jsonify({"message": message})
 
 
 @app.route("/predict", methods=["POST"])
 def detect_url():
-    if 'url' not in request.form:
-        return render_template("index.html", message="No url found !") # adding a check for url
-    url = request.form.get("url", " ").strip() # get a url and removing whitespaces
+    data = request.get_json()
+    url = data.get("url", " ").strip() # get a url and removing whitespaces
     
     # check the content is url or not   
     if not url.startswith(("http://", "https://")): # startswith need a tuple for multiple args
-        return render_template("index.html", "Invalid url format !")
+        return jsonify({"error": "Invalid URL format!"}), 400
     
     classification = url_detection(url) # calling url_detection function and assigned in a variable
-    return render_template("index.html", input_url = url, predicted= classification )
-    
-        
+    return jsonify({"predicted": classification})
     
 """
 we will first extract text from pdf or txt file 
@@ -152,3 +148,7 @@ and then the model will detect it
 # python main
 if __name__ == "__main__":
     app.run(debug=True) # run the app
+    
+    
+# jsonify -> is a function in flask that converts python dict (lists) into JSON responses for APIs
+# sets headers
