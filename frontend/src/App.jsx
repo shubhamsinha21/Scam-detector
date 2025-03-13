@@ -1,70 +1,174 @@
-import { useState } from "react"  // a react hook for managing state variables
-import axios from "axios"  // a library used to send HTTPs requests to the flask backend
+import { useState } from "react";
+import axios from "axios";
+import {
+  Container,
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Paper,
+  Snackbar,
+  Alert,
+} from "@mui/material";
+import { CheckCircle, Error, Info, Link as LinkIcon, Description } from "@mui/icons-material";
 
 function App() {
-  // state for url
-  const [url, setUrl] = useState("") // url - stores the user-input url
-  const [prediction, setPrediction] = useState(null) // stores the scam classification result for url
-  const [file, setFile] = useState(null) // stores the uploaded file like (PDF/TXT)
-  const [filerResult, setFileResult] = useState(null) // stores the scam detection result for uploaded file
+  const [url, setUrl] = useState("");
+  const [prediction, setPrediction] = useState(null);
+  const [file, setFile] = useState(null);
+  const [fileResult, setFileResult] = useState(null);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("info"); // "success", "error", "info"
 
-/* 
-Handle form submission for url-based scam detection
-*/
+  // Show snackbar notification
+  const showSnackbar = (message, severity) => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setOpenSnackbar(true);
+  };
+
+  // Handle URL Scam Detection
   const handleUrlSubmit = async (e) => {
-    e.preventDefault() // prevents page reload on form submission
-    try{
-      // send a POST req to the flask backend with the entered URL
-      const response = await axios.post("http://127.0.0.1:5000/predict", {url})
-      // axios - parses the actual data sent from flash API
-      // if sucessful, stores the backend's response
-
-      setPrediction(response.data.predicted)
-      // flask return json, axios converts it
+    e.preventDefault();
+    try {
+      const response = await axios.post("http://127.0.0.1:5000/predict", { url });
+      setPrediction(response.data.predicted);
+      showSnackbar(`Prediction: ${response.data.predicted}`, "info");
+    } catch (error) {
+      console.log("Error", error);
+      showSnackbar("Error in prediction", "error");
     }
-    catch (error){
-      console.log("Error", error)
+  };
+
+  // Handle File Scam Detection
+  const handleFileSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!file) {
+      showSnackbar("Please select a file", "error");
+      return;
     }
-  }
 
+    const formData = new FormData();
+    formData.append("file", file);
 
-/* Handle file-based scam detection */
-const handleFileSubmit = async (e) => {
-  e.preventDefault()
-
-  const formData = new FormData() // formData - js object allows to create key-value pair, used for hamdlinh file uploads in multipart/form-data format, required when sending files via https req
- // initializes a new instance to store form fields and file uplaods
-  formData.append("file", file) // add key value pair , expects in request.files["file"]
-
-  try{
-    const response = await axios.post("http://127.0.0.1:5000/scam", formData, {
-      headers: {"Content-Type": "multipart/form-data"} // adding headers for file uploads
-    })
-    setFileResult(response.data.message) // store message
-  }
-  catch (error){
-    console.log("File upload error", error)
-  }
-}
+    try {
+      const response = await axios.post("http://127.0.0.1:5000/scam", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setFileResult(response.data.message);
+      showSnackbar(`Result: ${response.data.message}`, "info");
+    } catch (error) {
+      console.log("File upload error", error);
+      showSnackbar("File upload failed", "error");
+    }
+  };
 
   return (
-    <div>
-      <h1>Scam Detector</h1>
-      <h2>Scam URL Detection</h2>
-      <form onSubmit={handleUrlSubmit}>
-        <input type="text" value={url} onChange={(e) => setUrl(e.target.value)} required />
-        <button type="submit">Classify</button>
-      </form>
-      {prediction && <p>Prediction: {prediction}</p>}
+    <Container maxWidth="sm">
+      <Box
+        sx={{
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Paper elevation={3} sx={{ p: 4, width: "100%", textAlign: "center" }}>
+          <Typography variant="h3" gutterBottom fontWeight="bold">
+            Scam Detector <Info color="primary" />
+          </Typography>
 
-      <h2>Scam File Detection</h2>
-      <form onSubmit={handleFileSubmit}>
-        <input type="file" onChange={(e) => setFile(e.target.files[0])} required />
-        <button type="submit">Upload</button>
-      </form>
-      {filerResult && <p>Result: {filerResult}</p>}
-    </div>
-  )
+          {/* URL Detection */}
+          <Typography variant="h5" gutterBottom fontWeight="bold">
+            Scam URL Detection
+          </Typography>
+          <form onSubmit={handleUrlSubmit}>
+            <TextField
+              fullWidth
+              label="Enter URL"
+              variant="outlined"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              required
+              sx={{ mb: 2 }}
+              inputProps={{ style: { fontSize: "18px", fontWeight: "bold" } }}
+            />
+            <Button variant="contained" color="primary" type="submit" fullWidth sx={{ fontSize: "18px", fontWeight: "bold" }}>
+              Classify
+            </Button>
+          </form>
+
+          {/* Show Prediction & URL */}
+          {prediction && (
+            <Box sx={{ mt: 2, textAlign: "center" }}>
+              <Typography sx={{ display: "flex", alignItems: "center", gap: 1 }} fontWeight="bold" fontSize="20px">
+                {prediction.includes("Scam") ? <Error color="error" /> : <CheckCircle color="success" />}
+                Prediction: {prediction}
+              </Typography>
+              <Typography variant="body1" sx={{ mt: 1, fontWeight: "bold", fontSize: "16px", color: "gray", display: "flex", alignItems: "center", gap: 1 }}>
+                <LinkIcon color="action" /> URL: {url}
+              </Typography>
+            </Box>
+          )}
+
+          {/* File Detection */}
+          <Typography variant="h5" gutterBottom sx={{ mt: 4 }} fontWeight="bold">
+            Scam File Detection
+          </Typography>
+          <form onSubmit={handleFileSubmit}>
+            <Button variant="contained" component="label" fullWidth sx={{ fontSize: "18px", fontWeight: "bold" }}>
+              Upload File
+              <input
+                type="file"
+                hidden
+                onChange={(e) => setFile(e.target.files[0] || null)}
+                required
+              />
+            </Button>
+            <Button
+              variant="contained"
+              color="secondary"
+              type="submit"
+              fullWidth
+              sx={{ mt: 2, fontSize: "18px", fontWeight: "bold" }}
+            >
+              Analyze File
+            </Button>
+          </form>
+
+          {/* Show File Result & Name */}
+          {fileResult && (
+            <Box sx={{ mt: 2, textAlign: "center" }}>
+              <Typography sx={{ display: "flex", alignItems: "center", gap: 1 }} fontWeight="bold" fontSize="20px">
+                {fileResult.includes("Scam") ? <Error color="error" /> : <CheckCircle color="success" />}
+                Result: {fileResult}
+              </Typography>
+              {file && (
+                <Typography variant="body1" sx={{ mt: 1, fontWeight: "bold", fontSize: "16px", color: "gray", display: "flex", alignItems: "center", gap: 1 }}>
+                  <Description color="action" /> File: {file.name}
+                </Typography>
+              )}
+            </Box>
+          )}
+        </Paper>
+      </Box>
+
+      {/* Snackbar for Notifications */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={4000} // Longer duration
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }} // Pop up at bottom-center
+      >
+        <Alert severity={snackbarSeverity} onClose={() => setOpenSnackbar(false)} sx={{ fontSize: "18px", fontWeight: "bold" }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+    </Container>
+  );
 }
 
-export default App
+export default App;
