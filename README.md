@@ -1,5 +1,7 @@
 
 
+own
+
 ready I'm back - 
 
 ##Full stack scam detector app, which can detect malicious url's and files.
