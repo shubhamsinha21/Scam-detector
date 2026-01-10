@@ -114,3 +114,65 @@ Backend API (Flask)
 >AI (Explanation Only)
 >Gemini LLM (pluggable)
 
+## 8. Folder Structure (TARGET)
+
+```bash
+
+sentinelai/
+├── backend/
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── routes/
+│   │   ├── services/
+│   │   │   ├── url_model.py
+│   │   │   ├── text_model.py
+│   │   │   └── explain.py
+│   │   ├── models/
+│   │   └── utils/
+│   └── requirements.txt
+│
+├── ml/
+│   ├── url_detection/
+│   └── text_detection/
+│
+├── frontend/
+│   └── src/
+│
+└── README.md
+```
+
+## 9. Model Strategy
+
+**URL Detection**
+
+1. Dataset: Phishing URL datasets (OpenPhish / PhishTank)
+2. Models: RandomForest / XGBoost
+3. Evaluation: Accuracy + Precision + Recall + F1-score 
+
+**Text Detection**
+
+1. Dataset: Spam / scam text datasets
+2. Model: DistilBERT fine-tuned
+3. Evaluation: Confusion matrix + ROC-AUC
+
+## 10. Development Plan (7 Days)
+
+Day	Focus
+
+1	Architecture, setup, planning
+2	URL ML model training
+3	URL inference API
+4	Text model training
+5	File pipeline + explainability
+6	Frontend upgrade
+7	Polish, docs, CV positioning
+
+--
+
+## 11. Evaluation & Metrics
+
+All models must have:
+
+- Logged metrics
+- Saved artifacts
+- Reproducible training steps
