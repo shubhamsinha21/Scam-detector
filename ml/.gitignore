@@ -1,3 +1,6 @@
 .venv/
 url_detection/data/
 *.csv
+
+url_detection/models/
+*.joblib
