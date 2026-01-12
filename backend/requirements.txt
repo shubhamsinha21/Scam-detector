@@ -1,4 +1,7 @@
 flask # for backend
 dotenv # to load env files
 PyPDF2
-google-generativeai
+numpy
+joblib
+flask_cors
+sklearn
