@@ -1,0 +1,4 @@
+Dear user,
+Your bank account has been compromised.
+Click the link below immediately to verify your account:
+http://fake-bank-login.com

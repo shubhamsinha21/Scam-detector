@@ -1,0 +1,6 @@
+Hello John,
+The meeting is scheduled for tomorrow at 10 AM.
+Please review the attached agenda.
+
+Best regards,
+Team
